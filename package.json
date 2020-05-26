@@ -1,0 +1,23 @@
+{
+  "name": "xmind-homework",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/wodeGG123/xmind-homework.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/wodeGG123/xmind-homework/issues"
+  },
+  "homepage": "https://github.com/wodeGG123/xmind-homework#readme",
+  "dependencies": {
+    "koa-router": "^8.0.8",
+    "koa2": "^2.0.0-alpha.7"
+  }
+}
