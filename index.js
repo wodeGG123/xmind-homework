@@ -13,11 +13,15 @@ app.use(async (ctx, next) => {
 // add url-route:
 router.get('/get/:csv', async (ctx, next) => {
     var csvName = ctx.params.csv;
-
     var csv = require(__dirname+'/src/utils/csv.js');
-    var res = await csv.getCsv(__dirname+'/resources/' + csvName + '.csv')
-    ctx.response.body = `<p>${res.title.toString()}<p>`;
+    try {
+        var res = await csv.getCsv(__dirname+'/resources/' + csvName + '.csv')
+        ctx.response.body = res;
+    } catch (error) {
+        ctx.response.body = error;
+    }
     next()
+   
 });
 // add router middleware:
 app.use(router.routes());
