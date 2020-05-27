@@ -17,6 +17,7 @@
   },
   "homepage": "https://github.com/wodeGG123/xmind-homework#readme",
   "dependencies": {
+    "koa-bodyparser": "^4.3.0",
     "koa-router": "^8.0.8",
     "koa2": "^2.0.0-alpha.7"
   }

@@ -2,26 +2,50 @@
 const Koa = require('koa2');
 // 注意require('koa-router')返回的是函数:
 const router = require('koa-router')();
+// body中间件
+const bodyParser = require('koa-bodyparser');
 // 创建一个Koa对象表示web app本身:
 const app = new Koa();
 
+app.use(bodyParser());
 // 对于任何请求，app将调用该异步函数处理请求：
 app.use(async (ctx, next) => {
     await next();
 });
 
 // add url-route:
-router.get('/get/:csv', async (ctx, next) => {
-    var csvName = ctx.params.csv;
-    var csv = require(__dirname+'/src/utils/csv.js');
+router.get('/csv/get/:filename', async (ctx, next) => {
+    let csvName = ctx.params.filename;
+    let csv = require(__dirname + '/src/utils/csv.js');
     try {
-        var res = await csv.getCsv(__dirname+'/resources/' + csvName + '.csv')
+        var res = await csv.get(__dirname + '/resources/' + csvName + '.csv', ctx);
         ctx.response.body = res;
     } catch (error) {
         ctx.response.body = error;
     }
     next()
-   
+});
+router.del('/csv/del/:filename', async (ctx, next) => {
+    let csvName = ctx.params.filename;
+    let csv = require(__dirname + '/src/utils/csv.js');
+    try {
+        var res = await csv.del(__dirname + '/resources/' + csvName + '.csv', ctx);
+        ctx.response.body = res;
+    } catch (error) {
+        ctx.response.body = error;
+    }
+    next()
+});
+router.post('/csv/add/:filename', async (ctx, next) => {
+    let csvName = ctx.params.filename;
+    let csv = require(__dirname + '/src/utils/csv.js');
+    try {
+        var res = await csv.add(__dirname + '/resources/' + csvName + '.csv', ctx);
+        ctx.response.body = res;
+    } catch (error) {
+        ctx.response.body = error;
+    }
+    next()
 });
 // add router middleware:
 app.use(router.routes());
