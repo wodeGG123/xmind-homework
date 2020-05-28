@@ -23,14 +23,7 @@ function get(path,ctx){
             }
         });
     })
-    function ConvertToTable(data) {
-        data = data.toString();
-        let table = {};
-        let dataList = data.split(/\n/);
-        table.title = dataList.splice(0,1)[0].replace(/\r/,'').split(',')
-        table.content = dataList.map(item=>item.replace(/\r/,'').split(','))
-        return table
-    }
+  
 }
 function update(){}
 function add(path,ctx){
@@ -43,7 +36,6 @@ function add(path,ctx){
     }else{
         reject('参数错误')
     }
-    
 })
 function validateWriteParam(param){
         let keys = new Set(KEYS);
@@ -72,11 +64,30 @@ function validateWriteParam(param){
 }
 function del(path,ctx){
     return new Promise((resolve,reject)=>{
+        fs.readFile(path,function(err,data){
+            if(err){
+                reject('读取失败')
+            }else{
+                console.log(data);
+                let table = ConvertToTable(data)
+                console.log(table);
+
+            }
+        })
+
+
         if(1){resolve()}else{reject()}
     })
 }
 
-
+function ConvertToTable(data) {
+    data = data.toString();
+    let table = {};
+    let dataList = data.split(/\n/);
+    table.title = dataList.splice(0,1)[0].replace(/\r/,'').split(',')
+    table.content = dataList.map((item,index)=>item.replace(/\r/,'').split(','))
+    return table
+}
 function _csvFilter(list,param){
     let rs = []
     list.forEach((item)=>{
@@ -88,7 +99,6 @@ function _csvFilter(list,param){
                     const element = param[key];
                     if(element === '') continue; // 值为空的属性表示不对此项进行筛选，直接跳过
                     if(item[key].indexOf(element)===-1) tag = false; // 筛选所有属性的交集
-                    
                 }
             }
             if(tag) rs.push(item)
