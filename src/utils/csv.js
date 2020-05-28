@@ -1,4 +1,6 @@
+
 let fs = require("fs");
+let KEYS = ['type','time','category','amount'];
 let csv = {
     get,
     update,
@@ -33,19 +35,30 @@ function get(path,ctx){
 function update(){}
 function add(path,ctx){
     return new Promise((resolve,reject)=>{
-       let data = getWriteData(ctx.request.body,reject);
-       console.log(11111)
-       fs.writeFile(path,data,{flag:'a'},function(err){
-           err ? reject('写入失败') : resolve('写入成功')
-       })
-    })
-
-    function getWriteData(param,reject){
-        reject('cccccc')
+    if(validateWriteParam(ctx.request.body)){
+        let data = getWriteData(ctx.request.body,reject);
+        fs.writeFile(path,data,{flag:'a'},function(err){
+            err ? reject('写入失败') : resolve('写入成功')
+        })
+    }else{
+        reject('参数错误')
+    }
+    
+})
+function validateWriteParam(param){
+        let keys = new Set(KEYS);
+        let count = 0;
+        for (const key in param) {
+            if (param.hasOwnProperty(key)) {
+                if(keys.has(key)) count++;
+            }
+        }
+        return (keys.size === count);
+    }
+    function getWriteData(param){
         let rs = []
         let paramKeys = new Set(Object.keys(param))
-        let keys = ['type','time','category','amount']
-
+        let keys = KEYS
         for (const key in param) {
             if (param.hasOwnProperty(key)) {
                 const element = param[key];
@@ -67,7 +80,7 @@ function del(path,ctx){
 function _csvFilter(list,param){
     let rs = []
     list.forEach((item)=>{
-        item = _arrToObj(item,['type','time','category','amount']); // 查询数据数组转换成对象
+        item = _arrToObj(item,KEYS); // 查询数据数组转换成对象
         if(Object.keys(param).length>0){
             let tag = true; // 预置参数，如果结果为true则向返回值里添加对象
             for (const key in param) {
