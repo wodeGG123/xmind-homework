@@ -1,18 +1,13 @@
 
 let fs = require("fs");
 let KEYS = ['type','time','category','amount'];
-let csv = {
-    get,
-    update,
-    add,
-    del,
-}
+let csv = {get,update,add,del}
 module.exports = csv
 
 function get(path,ctx){
     return new Promise(async (resolve, reject) => {
         try {
-            let table = await getCsvData()
+            let table = await getCsvData(path);
             let reqParam = ctx.request.query;
             table = _csvFilter(table.content,reqParam)
             resolve(table)
@@ -22,7 +17,37 @@ function get(path,ctx){
     })
   
 }
-function update(){}
+function update(path,ctx){
+    return new Promise(async (resolve,reject)=>{
+        let tag = true;
+        let csvContent = ''
+        try {
+            let table = await getCsvData(path);
+            let param = ctx.request.body;
+            if(param.id){
+                for (const key in param) {
+                    if (param.hasOwnProperty(key)) {
+                        const element = param[key];
+                        table.content[param.id][key] = element
+                    }
+                }
+            }
+            csvContent = _convertToCsv(table);
+        } catch (error) {
+            tag = false
+            reject(error)
+        }
+        if(tag){
+            try {
+                let rs = await setCsvData(path,csvContent);
+                resolve(rs)
+            } catch (error) {
+                reject(error)
+            }
+        }
+      
+    })
+}
 function add(path,ctx){
     return new Promise((resolve,reject)=>{
     if(validateWriteParam(ctx.request.body)){
@@ -61,12 +86,43 @@ function add(path,ctx){
 }
 function del(path,ctx){
     return new Promise(async (resolve,reject)=>{
-        let table = await getCsvData(path)
-        console.log(table)
+        let tag = true;
+        let csvContent = ''
+        try {
+            let table = await getCsvData(path);
+            let id = ctx.request.body.id;
+            table.content.splice(id,1); // 删除动作
+            csvContent = _convertToCsv(table);
+        } catch (error) {
+            tag = false
+            reject(error)
+        }
+        if(tag){
+            try {
+                let rs = await setCsvData(path,csvContent);
+                resolve(rs)
+            } catch (error) {
+                reject(error)
+            }
+        }
+      
     })
 }
-
-function ConvertToTable(data) {
+function _convertToCsv(data){
+    let rs = '';
+    rs += _arrToLine(data.title);
+    data.content.forEach((obj,index)=>{
+        delete obj.id;
+        let t = _objToArr(obj);
+        t = _arrToLine(t);
+        if(index+1===data.content.length) {
+            t = t.replace(/\n/,'');
+        }
+        rs += t;
+    });
+    return rs;
+}
+function _convertToTable(data) {
     data = data.toString();
     let table = {};
     let dataList = data.split(/\n/);
@@ -80,8 +136,19 @@ function getCsvData(path){
             if(err){
                 reject('读取失败')
             }else{
-                let table = ConvertToTable(data);
+                let table = _convertToTable(data);
                 resolve(table)
+            }
+        })
+    })
+}
+function setCsvData(path,data){
+    return new Promise((resolve,reject)=>{
+        fs.writeFile(path,data,function(err){
+            if(err){
+                reject('读取失败')
+            }else{
+                resolve('写入成功')
             }
         })
     })
@@ -113,4 +180,9 @@ function _arrToObj(arr,keys,id){
     })
     return Object.assign(obj,{id});
 }
-function _objToArr(){}
+function _objToArr(obj){
+    return Object.values(obj)
+}
+function _arrToLine(arr){
+    return `${arr.join(',')}\n`
+}

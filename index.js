@@ -14,7 +14,7 @@ app.use(async (ctx, next) => {
 });
 
 // add url-route:
-router.get('/csv/get/:filename', async (ctx, next) => {
+router.get('/csv/:filename', async (ctx, next) => {
     let csvName = ctx.params.filename;
     let csv = require(__dirname + '/src/utils/csv.js');
     try {
@@ -25,7 +25,7 @@ router.get('/csv/get/:filename', async (ctx, next) => {
     }
     next()
 });
-router.del('/csv/del/:filename', async (ctx, next) => {
+router.del('/csv/:filename', async (ctx, next) => {
     let csvName = ctx.params.filename;
     let csv = require(__dirname + '/src/utils/csv.js');
     try {
@@ -36,7 +36,18 @@ router.del('/csv/del/:filename', async (ctx, next) => {
     }
     next()
 });
-router.post('/csv/add/:filename', async (ctx, next) => {
+router.put('/csv/:filename', async (ctx, next) => {
+    let csvName = ctx.params.filename;
+    let csv = require(__dirname + '/src/utils/csv.js');
+    try {
+        var res = await csv.update(__dirname + '/resources/' + csvName + '.csv', ctx);
+        ctx.response.body = res;
+    } catch (error) {
+        ctx.response.body = error;
+    }
+    next()
+});
+router.post('/csv/:filename', async (ctx, next) => {
     let csvName = ctx.params.filename;
     let csv = require(__dirname + '/src/utils/csv.js');
     try {
