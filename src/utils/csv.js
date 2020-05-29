@@ -10,18 +10,15 @@ let csv = {
 module.exports = csv
 
 function get(path,ctx){
-    return new Promise((resolve, reject) => {
-        fs.readFile(path, function (err, data) {
-            if (err) {
-                console.log(err.stack);
-                reject('没找到文件')
-            }else{
-                let table = ConvertToTable(data);
-                let reqParam = ctx.request.query;
-                table = _csvFilter(table.content,reqParam)
-                resolve(table)
-            }
-        });
+    return new Promise(async (resolve, reject) => {
+        try {
+            let table = await getCsvData()
+            let reqParam = ctx.request.query;
+            table = _csvFilter(table.content,reqParam)
+            resolve(table)
+        } catch (error) {
+            reject('没找到文件')
+        }
     })
   
 }
@@ -36,8 +33,8 @@ function add(path,ctx){
     }else{
         reject('参数错误')
     }
-})
-function validateWriteParam(param){
+    })
+    function validateWriteParam(param){
         let keys = new Set(KEYS);
         let count = 0;
         for (const key in param) {
@@ -63,20 +60,9 @@ function validateWriteParam(param){
     }
 }
 function del(path,ctx){
-    return new Promise((resolve,reject)=>{
-        fs.readFile(path,function(err,data){
-            if(err){
-                reject('读取失败')
-            }else{
-                console.log(data);
-                let table = ConvertToTable(data)
-                console.log(table);
-
-            }
-        })
-
-
-        if(1){resolve()}else{reject()}
+    return new Promise(async (resolve,reject)=>{
+        let table = await getCsvData(path)
+        console.log(table)
     })
 }
 
@@ -84,14 +70,25 @@ function ConvertToTable(data) {
     data = data.toString();
     let table = {};
     let dataList = data.split(/\n/);
-    table.title = dataList.splice(0,1)[0].replace(/\r/,'').split(',')
-    table.content = dataList.map((item,index)=>item.replace(/\r/,'').split(','))
+    table.title = dataList.splice(0,1)[0].replace(/\r/,'').split(',');
+    table.content = dataList.map((item,index)=>_arrToObj(item.replace(/\r/,'').split(','),table.title,index));
     return table
+}
+function getCsvData(path){
+    return new Promise((resolve,reject)=>{
+        fs.readFile(path,function(err,data){
+            if(err){
+                reject('读取失败')
+            }else{
+                let table = ConvertToTable(data);
+                resolve(table)
+            }
+        })
+    })
 }
 function _csvFilter(list,param){
     let rs = []
     list.forEach((item)=>{
-        item = _arrToObj(item,KEYS); // 查询数据数组转换成对象
         if(Object.keys(param).length>0){
             let tag = true; // 预置参数，如果结果为true则向返回值里添加对象
             for (const key in param) {
@@ -109,11 +106,11 @@ function _csvFilter(list,param){
     return rs
 }
 
-function _arrToObj(arr,keys){
+function _arrToObj(arr,keys,id){
     let obj = {}
     arr.forEach((item,i)=>{
         obj[keys[i]] = item
     })
-    return obj
+    return Object.assign(obj,{id});
 }
 function _objToArr(){}
