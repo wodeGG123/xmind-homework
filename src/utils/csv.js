@@ -1,6 +1,5 @@
 
 let fs = require("fs");
-let KEYS = ['type','time','category','amount'];
 let csv = {get,update,add,del}
 module.exports = csv
 
@@ -15,7 +14,6 @@ function get(path,ctx){
             reject('没找到文件')
         }
     })
-  
 }
 function update(path,ctx){
     return new Promise(async (resolve,reject)=>{
@@ -24,11 +22,11 @@ function update(path,ctx){
         try {
             let table = await getCsvData(path);
             let param = ctx.request.body;
-            if(param.id){
+            if(param._id){
                 for (const key in param) {
                     if (param.hasOwnProperty(key)) {
                         const element = param[key];
-                        table.content[param.id][key] = element
+                        table.content[param._id][key] = element
                     }
                 }
             }
@@ -49,9 +47,11 @@ function update(path,ctx){
     })
 }
 function add(path,ctx){
-    return new Promise((resolve,reject)=>{
-    if(validateWriteParam(ctx.request.body)){
-        let data = getWriteData(ctx.request.body,reject);
+    return new Promise(async (resolve,reject)=>{
+        let table = await getCsvData(path);
+        let titles = table.title;
+    if(validateWriteParam(ctx.request.body,titles)){
+        let data = getWriteData(ctx.request.body,titles);
         fs.writeFile(path,data,{flag:'a'},function(err){
             err ? reject('写入失败') : resolve('写入成功')
         })
@@ -59,8 +59,8 @@ function add(path,ctx){
         reject('参数错误')
     }
     })
-    function validateWriteParam(param){
-        let keys = new Set(KEYS);
+    function validateWriteParam(param,titles){
+        let keys = new Set(titles);
         let count = 0;
         for (const key in param) {
             if (param.hasOwnProperty(key)) {
@@ -71,8 +71,6 @@ function add(path,ctx){
     }
     function getWriteData(param){
         let rs = []
-        let paramKeys = new Set(Object.keys(param))
-        let keys = KEYS
         for (const key in param) {
             if (param.hasOwnProperty(key)) {
                 const element = param[key];
@@ -90,8 +88,8 @@ function del(path,ctx){
         let csvContent = ''
         try {
             let table = await getCsvData(path);
-            let id = ctx.request.body.id;
-            table.content.splice(id,1); // 删除动作
+            let _id = ctx.request.body._id;
+            table.content.splice(_id,1); // 删除动作
             csvContent = _convertToCsv(table);
         } catch (error) {
             tag = false
@@ -112,7 +110,7 @@ function _convertToCsv(data){
     let rs = '';
     rs += _arrToLine(data.title);
     data.content.forEach((obj,index)=>{
-        delete obj.id;
+        delete obj._id;
         let t = _objToArr(obj);
         t = _arrToLine(t);
         if(index+1===data.content.length) {
@@ -173,12 +171,12 @@ function _csvFilter(list,param){
     return rs
 }
 
-function _arrToObj(arr,keys,id){
+function _arrToObj(arr,keys,_id){
     let obj = {}
     arr.forEach((item,i)=>{
         obj[keys[i]] = item
     })
-    return Object.assign(obj,{id});
+    return Object.assign(obj,{_id});
 }
 function _objToArr(obj){
     return Object.values(obj)
