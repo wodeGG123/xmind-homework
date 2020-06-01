@@ -10,6 +10,11 @@ export default new Router({
       path: '/',
       name: 'Layout',
       component: Layout,
+      children: [{
+        path: 'bill-list',
+        
+      },
+      ],
     },
   ],
 });
