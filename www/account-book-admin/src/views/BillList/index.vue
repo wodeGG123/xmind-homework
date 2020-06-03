@@ -33,7 +33,7 @@
 </template>
 
 <script>
-
+import { getBills } from '@/api/csv.js'
 export default {
   name: 'BillList',
   data() {
@@ -57,6 +57,9 @@ export default {
         address: '上海市普陀区金沙江路 1516 弄'
       }]
     }
+  },
+  created() {
+    getBills()
   }
 }
 </script>
