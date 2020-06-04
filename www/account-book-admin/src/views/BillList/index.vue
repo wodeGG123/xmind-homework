@@ -1,65 +1,56 @@
 <template>
   <div class="bill-container">
-    <div class="filter">
-      <el-date-picker
-        v-model="value1"
-        type="datetimerange"
-        range-separator="至"
-        start-placeholder="开始日期"
-        end-placeholder="结束日期"
-      />
-    </div>
-    <el-table
-      :data="tableData"
-      stripe
-      style="width: 100%"
+    <x-table
+      :resources="data"
     >
       <el-table-column
-        prop="date"
-        label="日期"
-        width="180"
+        prop="time"
+        label="账单时间"
       />
       <el-table-column
-        prop="name"
-        label="姓名"
-        width="180"
+        prop="type"
+        label="账单类型"
       />
       <el-table-column
-        prop="address"
-        label="地址"
+        prop="category"
+        label="账单分类"
       />
-    </el-table>
+      <el-table-column
+        prop="amount"
+        label="账单金额"
+      />
+      <el-table-column
+        label="操作"
+      >
+        <template slot-scope="scope">
+          <el-button size="mini" @click="()=>{scope}">修改</el-button>
+          <el-button size="mini" @click="()=>{scope}">删除</el-button>
+        </template>
+      </el-table-column>
+    </x-table>
   </div>
 </template>
 
 <script>
 import { getBills } from '@/api/csv.js'
+import XTable from '@/components/XTable/index'
 export default {
   name: 'BillList',
+  components: { XTable },
   data() {
     return {
-      value1: [new Date(2000, 10, 10, 10, 10), new Date(2000, 10, 11, 10, 10)],
-      tableData: [{
-        date: '2016-05-02',
-        name: '王小虎',
-        address: '上海市普陀区金沙江路 1518 弄'
-      }, {
-        date: '2016-05-04',
-        name: '王小虎',
-        address: '上海市普陀区金沙江路 1517 弄'
-      }, {
-        date: '2016-05-01',
-        name: '王小虎',
-        address: '上海市普陀区金沙江路 1519 弄'
-      }, {
-        date: '2016-05-03',
-        name: '王小虎',
-        address: '上海市普陀区金沙江路 1516 弄'
+      data: [{
+        time: '2016-05-02',
+        type: '王小虎',
+        category: '上海市普陀区金沙江路 1518 弄',
+        amount: '上海市普陀区金沙江路 1518 弄'
       }]
     }
   },
   created() {
-    getBills()
+    getBills().then((data) => {
+      this.data = data
+    })
   }
 }
 </script>
