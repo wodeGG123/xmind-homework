@@ -1,49 +1,38 @@
 <template>
   <div class="x-table-wrap">
-    <div class="filter">
-      <el-card class="box-card">
-        <div slot="header" class="clearfix">
-          <span>筛选</span>
-        </div>
-        <div class="filter-inner">
-          <dl>
-            <dt>月份：</dt>
-            <dd>
-              <el-date-picker
-                v-model="filters.month"
-                type="month"
-                placeholder="选择月"
-              />
-            </dd>
-          </dl>
-        </div>
-      </el-card>
+    <x-table-filter v-show="filterShow" @close="closeCard" @change="filterChange" />
+    <x-table-count v-show="countShow" :data="filtedData" @close="closeCard" />
+    <div class="buttons">
+      <slot name="top" />
+      <el-button v-show="!filterShow" class="pull-right" @click="filterShow = true">筛选</el-button>
+      <el-button v-show="!countShow" class="pull-right" @click="countShow = true">统计</el-button>
     </div>
     <el-table
       v-bind="$attrs"
       :data="tableData"
       stripe
       style="width: 100%"
+      v-on="$listeners"
+      @sort-change="sortChange"
     >
       <slot />
     </el-table>
-    <div class="pagination">
-      <el-pagination
-        :current-page="page.current"
-        :page-sizes="[10, 20, 50, 100]"
-        :page-size="page.size"
-        layout="total, sizes, prev, pager, next, jumper"
-        :total="page.total"
-        @size-change="handleSizeChange"
-        @current-change="handleCurrentChange"
-      />
-    </div>
+    <x-table-pagination v-if="page.total > 0" :page="page" @change="pageChange" />
   </div>
 </template>
 
 <script>
+import XTableFilter from './components/Filter'
+import XTablePagination from './components/Pagination'
+import XTableCount from './components/Count'
+import _ from 'lodash'
 export default {
   name: 'XTable',
+  components: {
+    XTableFilter,
+    XTablePagination,
+    XTableCount
+  },
   props: {
     resources: {
       type: Array,
@@ -51,71 +40,170 @@ export default {
         return []
       }
     }
+
   },
   data() {
     return {
+      filterShow: false,
+      countShow: false,
       filters: {
-        month: ''
+        time: null, // 月份组件默认空值为null
+        categories: [],
+        type: ''
       },
       page: {
         current: 1,
         size: 10,
-        total: 100
+        total: 0
       },
-      filtedData: [],
-      tableData: []
+      filtedData: [], // 筛选后的数据
+      tableData: [] // 最终展示的数据（分页后）
     }
   },
   watch: {
+    // 得到数据源后筛选数据
     resources: {
       handler(v) {
-        console.log(v)
         this.setFiltedData()
       }
     },
+    // 数据筛选完成后，更新分页数据（总数会变）
     filtedData: {
       handler(v) {
-        this.setTableData()
+        this.setPage({
+          current: 1,
+          total: v.length
+        })
       }
     }
   },
   methods: {
+    setPage(v) {
+      this.page = Object.assign({}, this.page, v)
+      this.setTableData()
+    },
+    // 分页信息改变触发
+    pageChange(v) {
+      this.setPage(v)
+    },
+    // 筛选信息改变触发
+    filterChange(v) {
+      this.filters = Object.assign({}, v)
+      this.setFiltedData()
+    },
     setTableData() {
-      let tableData = this.resources
-      // 筛选数据
-      tableData = this.getFiltedData(tableData)
+      let tableData = []
+      // 设置当前页数据
+      tableData = this.filtedData.slice((this.page.current - 1) * this.page.size, this.page.current * this.page.size)
       this.tableData = tableData
     },
     setFiltedData() {
-      const filtedData = this.resources
+      const filtedData = []
 
+      // 筛选月份
+      this.resources.forEach(item => {
+        // 把收入支出进行数据转换，增强可读性，提升用户体验
+        item = parseData.call(this, item)
+        // 设置标记，是否添加到数据源
+        let tag = true
+        // 对账单月份筛选
+        if (!filterMonth.call(this, item)) {
+          tag = false
+        }
+        // 对账单分类进行筛选
+        if (!filterCategory.call(this, item)) {
+          tag = false
+        }
+        // 对账单类型进行筛选
+        // if (!filterType.call(this, item)) {
+        //   tag = false
+        // }
+        if (tag) filtedData.push(item)
+      })
       this.filtedData = filtedData
-    },
-    getFiltedData(data) {
-      const rs = []
 
-      return rs
+      function parseData(data) {
+        const rs = data
+        const tag = data.type === '0' ? -1 : 1
+        rs.money = data.amount * tag
+        return rs
+      }
+      function filterMonth(item) {
+        const filterYear = new Date(Number(this.filters.time)).getFullYear()
+        const filterMonth = new Date(Number(this.filters.time)).getMonth() + 1
+        const _time = new Date(Number(item.time))
+        const _itemYear = _time.getFullYear()
+        const _itemMonth = _time.getMonth() + 1
+        // 如果筛选项为空，代表不筛选，数据全部通过
+        if (this.filters.time === null) {
+          return true
+        } else {
+          // 年月匹配才通过筛选
+          if (_itemYear === filterYear && _itemMonth === filterMonth) {
+            return true
+          } else {
+            return false
+          }
+        }
+      }
+      function filterCategory(item) {
+        let rs = false
+        if (this.filters.categories.length > 0) {
+          for (let index = 0; index < this.filters.categories.length; index++) {
+            const element = this.filters.categories[index]
+            if (item.category === element) {
+              rs = true
+              break
+            }
+          }
+        } else {
+          rs = true
+        }
+        return rs
+      }
+      // function filterType(item) {
+      //   if (this.filters.type === '') {
+      //     return true
+      //   } else {
+      //     if (item.type === this.filters.type) return true
+      //   }
+      //   return false
+      // }
     },
-    handleSizeChange() {},
-    handleCurrentChange() {}
+    // 对数据进行排序
+    sortChange(data) {
+      if (data.prop === 'money') {
+        let rs = _.cloneDeep(this.filtedData)
+        if (data.order === 'ascending') {
+          rs = rs.sort((a, b) => {
+            return a.money - b.money
+          })
+          this.filtedData = rs
+        } else if (data.order === 'descending') {
+          rs = rs.sort((a, b) => {
+            return b.money - a.money
+          })
+          this.filtedData = rs
+        } else {
+          // 不排序的情况下重置数据
+          this.setFiltedData()
+        }
+      }
+    },
+    // 关闭卡片
+    closeCard(v) {
+      this[v] = false
+    }
+
   }
 }
 </script>
 
 <style lang="scss" scoped>
-.filter{
-  .filter-inner{
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    dl{
-      display: flex;
-      justify-content: center;
-      align-items: center;
+  .buttons{
+     margin-top: 16px;
+     .pull-right{
+      float: right;
+     }
   }
-  }
-}
-.pagination{
-  margin-top: 20px;
-}
 </style>

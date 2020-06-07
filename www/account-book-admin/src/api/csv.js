@@ -5,3 +5,9 @@ export function getBills() {
     method: 'get'
   })
 }
+export function getCategories() {
+  return r({
+    url: '/api/csv/categories',
+    method: 'get'
+  })
+}
