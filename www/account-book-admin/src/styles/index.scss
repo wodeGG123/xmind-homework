@@ -68,3 +68,13 @@ div:focus {
 .app-container {
   padding: 20px;
 }
+
+
+
+// 个人添加
+#app .sidebar-container{
+  display: none;
+}
+#app .main-container{
+  margin-left: 0!important;
+}

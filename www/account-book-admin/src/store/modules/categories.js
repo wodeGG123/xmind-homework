@@ -1,3 +1,5 @@
+import { getCategories } from '@/api/csv'
+
 const state = {
   data: []
 }
@@ -12,7 +14,14 @@ const mutations = {
 
 const actions = {
   setCategories({ commit }, data) {
-    commit('SET_CATEGORIES', data)
+    getCategories().then((res) => {
+      commit('SET_CATEGORIES', {
+        key: 'data',
+        value: res
+      })
+    }).catch((e) => {
+      console.log(e)
+    })
   }
 }
 

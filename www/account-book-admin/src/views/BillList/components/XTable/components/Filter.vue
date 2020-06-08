@@ -75,6 +75,7 @@
 </template>
 
 <script>
+import { mapState } from 'vuex'
 export default {
   name: 'XTableFilter',
   data() {
@@ -94,55 +95,33 @@ export default {
           label: '收入'
         }
       ],
-      categoriesOptions: [
-        {
-          value: '1bcddudhmh',
-          label: '车贷'
-        },
-        {
-          value: 'hc5g66kviq',
-          label: '车辆保养'
-        },
-        {
-          value: '8s0p77c323',
-          label: '房贷'
-        },
-        {
-          value: '0fnhbcle6hg',
-          label: '房屋租赁'
-        },
-        {
-          value: 'odrjk823mj8',
-          label: '家庭用品'
-        },
-        {
-          value: 'bsn20th0k2o',
-          label: '交通'
-        },
-        {
-          value: 'j1h1nohhmmo',
-          label: '旅游'
-        },
-        {
-          value: '3tqndrjqgrg',
-          label: '日常饮食'
-        },
-        {
-          value: 's73ijpispio',
-          label: '工资'
-        },
-        {
-          value: '1vjj47vpd28',
-          label: '股票投资'
-        },
-        {
-          value: '5il79e11628',
-          label: '基金投资'
-        }
-      ]
+      categoriesOptions: []
+    }
+  },
+  computed: {
+    ...mapState({
+      xCategories: store => store.categories.data
+    })
+  },
+  watch: {
+    xCategories: {
+      deep: true,
+      immediate: true,
+      handler(v) {
+        this.initCategories()
+      }
     }
   },
   methods: {
+    initCategories() {
+      const categoriesOptions = this.xCategories.map((obj) => {
+        return {
+          value: obj.id,
+          label: obj.name
+        }
+      })
+      this.categoriesOptions = categoriesOptions
+    },
     handleSubmit() {
       this.$emit('change', this.filters)
     },

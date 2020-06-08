@@ -2,10 +2,8 @@
   <div v-loading="loading" class="bill-container">
     <x-table
       :resources="data"
+      @refresh="getBills"
     >
-      <template slot="top">
-        <el-button @click="$router.push({name:'BillAdd'})">+添加账单</el-button>
-      </template>
       <el-table-column
         label="账单时间"
         prop="time"
@@ -31,33 +29,26 @@
           <span>{{ formateCategory(scope.row.category) }}</span>
         </template>
       </el-table-column>
-      <!-- <el-table-column
-        label="账单类型"
-      >
-        <template slot-scope="scope">
-          <span>{{ scope.row.type|formateType }}</span>
-        </template>
-      </el-table-column> -->
-
-      <!-- <el-table-column
+      <el-table-column
         label="操作"
       >
         <template slot-scope="scope">
-          <el-button size="mini" @click="()=>{scope}">修改</el-button>
-          <el-button size="mini" @click="()=>{scope}">删除</el-button>
+          <x-table-edit :data="scope.row" @refresh="getBills" />
+          <el-button size="mini" @click="()=>{handleDelete(scope.row)}">删除</el-button>
         </template>
-      </el-table-column> -->
+      </el-table-column>
     </x-table>
   </div>
 </template>
 
 <script>
-import { getBills, getCategories } from '@/api/csv.js'
+import { getBills, getCategories, deleteBill } from '@/api/csv.js'
 import XTable from './components/XTable/index'
 import moment from 'moment'
+import XTableEdit from './components/XTable/components/Edit'
 export default {
   name: 'BillList',
-  components: { XTable },
+  components: { XTable, XTableEdit },
   filters: {
     formateDate(v) {
       return moment(new Date(Number(v))).format('YYYY-MM-DD')
@@ -103,10 +94,6 @@ export default {
     //
     formateCategory(v) {
       let rs = ''
-      // const type = {
-      //   0: '支出',
-      //   1: '收入'
-      // }
       for (let index = 0; index < this.categories.length; index++) {
         const element = this.categories[index]
         if (element.id === v) {
@@ -114,6 +101,28 @@ export default {
         }
       }
       return rs
+    },
+    handleDelete(obj) {
+      this.$confirm('此操作将永久删除此账单信息, 是否继续?', '提示', {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        type: 'warning'
+      }).then(() => {
+        // 删除请求
+        deleteBill({
+          _id: obj._id
+        }).then(() => {
+          this.$message({
+            type: 'success',
+            message: '删除成功!'
+          })
+        }).catch((e) => {
+          this.$message.error('删除失败')
+        }).finally(() => {
+          this.getBills()
+        })
+      }).catch(() => {
+      })
     }
   }
 }

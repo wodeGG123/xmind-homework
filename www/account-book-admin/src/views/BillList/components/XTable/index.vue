@@ -3,7 +3,7 @@
     <x-table-filter v-show="filterShow" @close="closeCard" @change="filterChange" />
     <x-table-count v-show="countShow" :data="filtedData" @close="closeCard" />
     <div class="buttons">
-      <slot name="top" />
+      <x-table-add @refresh="$listeners.refresh" />
       <el-button v-show="!filterShow" class="pull-right" @click="filterShow = true">筛选</el-button>
       <el-button v-show="!countShow" class="pull-right" @click="countShow = true">统计</el-button>
     </div>
@@ -12,6 +12,7 @@
       :data="tableData"
       stripe
       style="width: 100%"
+      :row-key="(row)=>row._id"
       v-on="$listeners"
       @sort-change="sortChange"
     >
@@ -25,13 +26,15 @@
 import XTableFilter from './components/Filter'
 import XTablePagination from './components/Pagination'
 import XTableCount from './components/Count'
+import XTableAdd from './components/Add'
 import _ from 'lodash'
 export default {
   name: 'XTable',
   components: {
     XTableFilter,
     XTablePagination,
-    XTableCount
+    XTableCount,
+    XTableAdd
   },
   props: {
     resources: {
@@ -204,6 +207,7 @@ export default {
      margin-top: 16px;
      .pull-right{
       float: right;
+      margin-left: 10px;
      }
   }
 </style>

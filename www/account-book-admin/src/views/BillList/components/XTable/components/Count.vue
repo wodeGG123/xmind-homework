@@ -23,69 +23,7 @@
 </template>
 
 <script>
-import _ from 'lodash'
 import { mapState } from 'vuex'
-const initData = {
-  income: 0,
-  payout: 0,
-  categories: [
-    {
-      value: '1bcddudhmh',
-      count: 0,
-      label: '车贷'
-    },
-    {
-      value: 'hc5g66kviq',
-      count: 0,
-      label: '车辆保养'
-    },
-    {
-      value: '8s0p77c323',
-      count: 0,
-      label: '房贷'
-    },
-    {
-      value: '0fnhbcle6hg',
-      count: 0,
-      label: '房屋租赁'
-    },
-    {
-      value: 'odrjk823mj8',
-      count: 0,
-      label: '家庭用品'
-    },
-    {
-      value: 'bsn20th0k2o',
-      count: 0,
-      label: '交通'
-    },
-    {
-      value: 'j1h1nohhmmo',
-      count: 0,
-      label: '旅游'
-    },
-    {
-      value: '3tqndrjqgrg',
-      count: 0,
-      label: '日常饮食'
-    },
-    {
-      value: 's73ijpispio',
-      count: 0,
-      label: '工资'
-    },
-    {
-      value: '1vjj47vpd28',
-      count: 0,
-      label: '股票投资'
-    },
-    {
-      value: '5il79e11628',
-      count: 0,
-      label: '基金投资'
-    }
-  ]
-}
 export default {
   name: 'XTableCount',
   props: {
@@ -97,12 +35,25 @@ export default {
     }
   },
   data() {
-    const data = _.cloneDeep(initData)
     return {
-      ...data
+      income: 0,
+      payout: 0,
+      categories: []
     }
   },
+  computed: {
+    ...mapState({
+      xCategories: store => store.categories.data
+    })
+  },
   watch: {
+    xCategories: {
+      deep: true,
+      immediate: true,
+      handler(v) {
+        this.initCategories()
+      }
+    },
     data: {
       handler(v) {
         this.init()
@@ -112,8 +63,9 @@ export default {
   },
   methods: {
     init() {
-      const data = _.cloneDeep(initData)
-      Object.assign(this, data)
+      this.income = 0
+      this.payout = 0
+      this.initCategories()
     },
     getCounts() {
       this.data.forEach(element => {
@@ -130,6 +82,19 @@ export default {
           }
         })
       })
+      this.categories.sort((a, b) => {
+        return b.count - a.count
+      })
+    },
+    initCategories() {
+      const categories = this.xCategories.map((obj) => {
+        return {
+          value: obj.id,
+          count: 0,
+          label: obj.name
+        }
+      })
+      this.categories = categories
     }
   }
 }
