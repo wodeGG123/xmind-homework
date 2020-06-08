@@ -3,13 +3,15 @@ import Vuex from 'vuex'
 import getters from './getters'
 import app from './modules/app'
 import settings from './modules/settings'
+import categories from './modules/categories'
 
 Vue.use(Vuex)
 
 const store = new Vuex.Store({
   modules: {
     app,
-    settings
+    settings,
+    categories
   },
   getters
 })

@@ -24,6 +24,7 @@
 
 <script>
 import _ from 'lodash'
+import { mapState } from 'vuex'
 const initData = {
   income: 0,
   payout: 0,
@@ -139,6 +140,7 @@ export default {
   margin-top: 16px;
   .tag{
     margin-right: 10px;
+    margin-bottom: 10px;
   }
   .income{
     color: #f56c6c;

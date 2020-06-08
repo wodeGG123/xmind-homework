@@ -4,7 +4,7 @@
       :resources="data"
     >
       <template slot="top">
-        <el-button @click="addBill">+添加账单</el-button>
+        <el-button @click="$router.push({name:'BillAdd'})">+添加账单</el-button>
       </template>
       <el-table-column
         label="账单时间"
@@ -53,7 +53,7 @@
 
 <script>
 import { getBills, getCategories } from '@/api/csv.js'
-import XTable from '@/components/XTable/index'
+import XTable from './components/XTable/index'
 import moment from 'moment'
 export default {
   name: 'BillList',
@@ -114,9 +114,6 @@ export default {
         }
       }
       return rs
-    },
-    addBill() {
-      console.log('add')
     }
   }
 }

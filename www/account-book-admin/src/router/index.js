@@ -40,12 +40,21 @@ export const constantRoutes = [
     path: '/',
     component: Layout,
     redirect: '/bill-list',
-    children: [{
-      path: 'bill-list',
-      name: 'BillList',
-      component: () => import('@/views/BillList/index'),
-      meta: { title: '账单列表', icon: 'nested' }
-    }]
+    meta: { title: '账单', icon: 'table' },
+    children: [
+      {
+        path: 'bill-list',
+        name: 'BillList',
+        component: () => import('@/views/BillList/index'),
+        meta: { title: '账单列表', icon: 'nested' }
+      },
+      {
+        path: 'bill-add',
+        name: 'BillAdd',
+        component: () => import('@/views/BillAdd/index'),
+        meta: { title: '添加账单', icon: 'form' }
+      }
+    ]
   },
   // 404 page must be placed at the end !!!
   { path: '*', redirect: '/404', hidden: true }
