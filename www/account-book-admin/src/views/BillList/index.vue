@@ -91,7 +91,6 @@ export default {
         return data
       })
     },
-    //
     formateCategory(v) {
       let rs = ''
       for (let index = 0; index < this.categories.length; index++) {

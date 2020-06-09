@@ -22,7 +22,7 @@ function update (path, ctx) {
         try {
             let table = await getCsvData(path);
             let param = ctx.request.body;
-            if (param._id) {
+            if (param._id !== undefined) {
                 for (const key in param) {
                     if (param.hasOwnProperty(key)) {
                         const element = param[key];
@@ -106,6 +106,8 @@ function del (path, ctx) {
 
     })
 }
+
+// table转换为csv文档类型
 function _convertToCsv (data) {
     let rs = '';
     rs += _arrToLine(data.title);
@@ -120,6 +122,7 @@ function _convertToCsv (data) {
     });
     return rs;
 }
+// csv文档数据转为json数据
 function _convertToTable (data) {
     data = data.toString();
     let table = {};
@@ -151,6 +154,7 @@ function setCsvData (path, data) {
         })
     })
 }
+// csv数据筛选
 function _csvFilter (list, param) {
     let rs = []
     list.forEach((item) => {

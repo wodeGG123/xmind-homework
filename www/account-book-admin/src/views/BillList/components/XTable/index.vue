@@ -117,10 +117,6 @@ export default {
         if (!filterCategory.call(this, item)) {
           tag = false
         }
-        // 对账单类型进行筛选
-        // if (!filterType.call(this, item)) {
-        //   tag = false
-        // }
         if (tag) filtedData.push(item)
       })
       this.filtedData = filtedData
@@ -164,14 +160,6 @@ export default {
         }
         return rs
       }
-      // function filterType(item) {
-      //   if (this.filters.type === '') {
-      //     return true
-      //   } else {
-      //     if (item.type === this.filters.type) return true
-      //   }
-      //   return false
-      // }
     },
     // 对数据进行排序
     sortChange(data) {
