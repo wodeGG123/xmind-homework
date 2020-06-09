@@ -4,7 +4,7 @@ let response = require("./response");
 module.exports = (router)=>{
     let csv = require(path.resolve(__dirname,'../../src/utils/csv.js'));
     // 获取账单列表
-    router.get('/csv/:filename', async (ctx, next) => {
+    router.get('/api/csv/:filename', async (ctx, next) => {
         let csvName = ctx.params.filename;
         try {
             var res = await csv.get(path.resolve(__dirname,'../../db/' + csvName + '.csv') , ctx);
@@ -15,7 +15,7 @@ module.exports = (router)=>{
         next()
     });
     // 删除某条账单
-    router.del('/csv/:filename', async (ctx, next) => {
+    router.del('/api/csv/:filename', async (ctx, next) => {
         let csvName = ctx.params.filename;
         
         try {
@@ -27,7 +27,7 @@ module.exports = (router)=>{
         next()
     });
     // 修改某条账单
-    router.put('/csv/:filename', async (ctx, next) => {
+    router.put('/api/csv/:filename', async (ctx, next) => {
         let csvName = ctx.params.filename;
         try {
             var res = await csv.update(path.resolve(__dirname,'../../db/' + csvName + '.csv'), ctx);
@@ -38,7 +38,7 @@ module.exports = (router)=>{
         next()
     });
     // 新增账单
-    router.post('/csv/:filename', async (ctx, next) => {
+    router.post('/api/csv/:filename', async (ctx, next) => {
         let csvName = ctx.params.filename;
         try {
             var res = await csv.add(path.resolve(__dirname,'../../db/' + csvName + '.csv'), ctx);
