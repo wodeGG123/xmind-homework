@@ -1,6 +1,7 @@
 <template>
   <div v-loading="loading" class="bill-container">
     <x-table
+      key="table"
       :resources="data"
       @refresh="getBills"
     >

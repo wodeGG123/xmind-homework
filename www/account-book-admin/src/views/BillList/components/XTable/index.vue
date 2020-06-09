@@ -8,6 +8,7 @@
       <el-button v-show="!countShow" class="pull-right" @click="countShow = true">统计</el-button>
     </div>
     <el-table
+      ref="table"
       v-bind="$attrs"
       :data="tableData"
       stripe
@@ -67,6 +68,7 @@ export default {
     // 得到数据源后筛选数据
     resources: {
       handler(v) {
+        this.$refs.table.clearSort()
         this.setFiltedData()
       }
     },

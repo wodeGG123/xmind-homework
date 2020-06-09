@@ -32,8 +32,8 @@ module.exports = {
   devServer: {
     proxy: {
       '/api': {
-        target: 'http://localhost:3000',
-        pathRewrite: { '^/api': '' },
+        target: 'http://localhost:80',
+        pathRewrite: { '^/api': '/api' },
         changeOrigin: true, // target是域名的话，需要这个参数，
         secure: false // 设置支持https协议的代理
       }

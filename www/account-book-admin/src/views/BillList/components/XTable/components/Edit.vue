@@ -7,7 +7,6 @@
       :append-to-body="true"
       :show-close="false"
       width="400px"
-      @closed="resetForm('ruleForm')"
     >
       <el-form ref="ruleForm" :model="ruleForm" :rules="rules" label-width="100px" class="ruleForm">
         <el-form-item label="账单金额" prop="amount">

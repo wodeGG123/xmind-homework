@@ -5,7 +5,7 @@ export async function getBills() {
     method: 'get'
   })
   if (rs.code === 0) {
-    return rs.data
+    return rs.data.reverse()
   } else {
     return new Error(rs.message)
   }
