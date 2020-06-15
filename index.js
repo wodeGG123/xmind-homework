@@ -12,7 +12,9 @@ const staticResource = require('koa-static');
 // 创建一个Koa对象表示web app本身:
 const app = new Koa();
 // 设置静态资源地址
-app.use(staticResource(__dirname + '/public'));
+app.use(staticResource(__dirname + '/public',{
+    'maxage':30*24*60*60*1000,
+}));
 // 加载模板引擎
 app.use(views(path.join(__dirname, './views'), {
     extension: 'html'
